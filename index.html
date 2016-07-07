@@ -1,0 +1,375 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Parse-server by Tiger66639</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">Parse-server</h1>
+        <p class="header">Parse-compatible API server module for Node/Express</p>
+
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/Tiger66639/parse-server/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/Tiger66639/parse-server/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/Tiger66639/parse-server">View On GitHub</a></li>
+        </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/Tiger66639">Tiger66639</a></p>
+
+
+      </header>
+      <section>
+        <p><img src=".github/parse-server-logo.png?raw=true" alt="Parse Server logo"></p>
+
+<p><a href="https://travis-ci.org/ParsePlatform/parse-server"><img src="https://img.shields.io/travis/ParsePlatform/parse-server/master.svg?style=flat" alt="Build Status"></a>
+<a href="https://codecov.io/github/ParsePlatform/parse-server?branch=master"><img src="https://img.shields.io/codecov/c/github/ParsePlatform/parse-server/master.svg" alt="Coverage Status"></a>
+<a href="https://www.npmjs.com/package/parse-server"><img src="https://img.shields.io/npm/v/parse-server.svg?style=flat" alt="npm version"></a></p>
+
+<p>Parse Server is an <a href="http://blog.parse.com/announcements/introducing-parse-server-and-the-database-migration-tool/">open source version of the Parse backend</a> that can be deployed to any infrastructure that can run Node.js.</p>
+
+<p>Parse Server works with the Express web application framework. It can be added to existing web applications, or run by itself.</p>
+
+<h1>
+<a id="getting-started" class="anchor" href="#getting-started" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Getting Started</h1>
+
+<p>April 2016 - We created a series of video screencasts, please check them out here: <a href="http://blog.parse.com/learn/parse-server-video-series-april-2016/">http://blog.parse.com/learn/parse-server-video-series-april-2016/</a></p>
+
+<p>The fastest and easiest way to get started is to run MongoDB and Parse Server locally.</p>
+
+<h2>
+<a id="running-parse-server-locally" class="anchor" href="#running-parse-server-locally" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Running Parse Server locally</h2>
+
+<pre><code>$ npm install -g parse-server mongodb-runner
+$ mongodb-runner start
+$ parse-server --appId APPLICATION_ID --masterKey MASTER_KEY
+</code></pre>
+
+<p>You can use any arbitrary string as your application id and master key. These will be used by your clients to authenticate with the Parse Server.</p>
+
+<p>That's it! You are now running a standalone version of Parse Server on your machine.</p>
+
+<p><strong>Using a remote MongoDB?</strong> Pass the  <code>--databaseURI DATABASE_URI</code> parameter when starting <code>parse-server</code>. Learn more about configuring Parse Server <a href="#configuration">here</a>. For a full list of available options, run <code>parse-server --help</code>.</p>
+
+<h3>
+<a id="saving-your-first-object" class="anchor" href="#saving-your-first-object" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Saving your first object</h3>
+
+<p>Now that you're running Parse Server, it is time to save your first object. We'll use the <a href="https://parse.com/docs/rest/guide">REST API</a>, but you can easily do the same using any of the <a href="https://parseplatform.github.io/#sdks">Parse SDKs</a>. Run the following:</p>
+
+<div class="highlight highlight-source-shell"><pre>curl -X POST \
+-H <span class="pl-s"><span class="pl-pds">"</span>X-Parse-Application-Id: APPLICATION_ID<span class="pl-pds">"</span></span> \
+-H <span class="pl-s"><span class="pl-pds">"</span>Content-Type: application/json<span class="pl-pds">"</span></span> \
+-d <span class="pl-s"><span class="pl-pds">'</span>{"score":1337,"playerName":"Sean Plott","cheatMode":false}<span class="pl-pds">'</span></span> \
+http://localhost:1337/parse/classes/GameScore</pre></div>
+
+<p>You should get a response similar to this:</p>
+
+<div class="highlight highlight-source-js"><pre>{
+  <span class="pl-s"><span class="pl-pds">"</span>objectId<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>2ntvSpRGIK<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>createdAt<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>2016-03-11T23:51:48.050Z<span class="pl-pds">"</span></span>
+}</pre></div>
+
+<p>You can now retrieve this object directly (make sure to replace <code>2ntvSpRGIK</code> with the actual <code>objectId</code> you received when the object was created):</p>
+
+<div class="highlight highlight-source-shell"><pre>$ curl -X GET \
+  -H <span class="pl-s"><span class="pl-pds">"</span>X-Parse-Application-Id: APPLICATION_ID<span class="pl-pds">"</span></span> \
+  http://localhost:1337/parse/classes/GameScore/2ntvSpRGIK</pre></div>
+
+<div class="highlight highlight-source-json"><pre>// Response
+{
+  <span class="pl-s"><span class="pl-pds">"</span>objectId<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>2ntvSpRGIK<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>score<span class="pl-pds">"</span></span>: <span class="pl-c1">1337</span>,
+  <span class="pl-s"><span class="pl-pds">"</span>playerName<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>Sean Plott<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>cheatMode<span class="pl-pds">"</span></span>: <span class="pl-c1">false</span>,
+  <span class="pl-s"><span class="pl-pds">"</span>updatedAt<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>2016-03-11T23:51:48.050Z<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>createdAt<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>2016-03-11T23:51:48.050Z<span class="pl-pds">"</span></span>
+}</pre></div>
+
+<p>Keeping tracks of individual object ids is not ideal, however. In most cases you will want to run a query over the collection, like so:</p>
+
+<pre><code>$ curl -X GET \
+  -H "X-Parse-Application-Id: APPLICATION_ID" \
+  http://localhost:1337/parse/classes/GameScore
+</code></pre>
+
+<div class="highlight highlight-source-json"><pre>// The response will provide all the matching objects within the `results` array:
+{
+  <span class="pl-s"><span class="pl-pds">"</span>results<span class="pl-pds">"</span></span>: [
+    {
+      <span class="pl-s"><span class="pl-pds">"</span>objectId<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>2ntvSpRGIK<span class="pl-pds">"</span></span>,
+      <span class="pl-s"><span class="pl-pds">"</span>score<span class="pl-pds">"</span></span>: <span class="pl-c1">1337</span>,
+      <span class="pl-s"><span class="pl-pds">"</span>playerName<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>Sean Plott<span class="pl-pds">"</span></span>,
+      <span class="pl-s"><span class="pl-pds">"</span>cheatMode<span class="pl-pds">"</span></span>: <span class="pl-c1">false</span>,
+      <span class="pl-s"><span class="pl-pds">"</span>updatedAt<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>2016-03-11T23:51:48.050Z<span class="pl-pds">"</span></span>,
+      <span class="pl-s"><span class="pl-pds">"</span>createdAt<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>2016-03-11T23:51:48.050Z<span class="pl-pds">"</span></span>
+    }
+  ]
+}
+</pre></div>
+
+<p>To learn more about using saving and querying objects on Parse Server, check out the <a href="https://parse.com/docs">Parse documentation</a>.</p>
+
+<h3>
+<a id="connect-your-app-to-parse-server" class="anchor" href="#connect-your-app-to-parse-server" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Connect your app to Parse Server</h3>
+
+<p>Parse provides SDKs for all the major platforms. Refer to the Parse Server guide to <a href="https://github.com/ParsePlatform/parse-server/wiki/Parse-Server-Guide#using-parse-sdks-with-parse-server">learn how to connect your app to Parse Server</a>.</p>
+
+<h2>
+<a id="running-parse-server-elsewhere" class="anchor" href="#running-parse-server-elsewhere" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Running Parse Server elsewhere</h2>
+
+<p>Once you have a better understanding of how the project works, please refer to the <a href="https://github.com/ParsePlatform/parse-server/wiki">Parse Server wiki</a> for in-depth guides to deploy Parse Server to major infrastructure providers. Read on to learn more about additional ways of running Parse Server.</p>
+
+<h3>
+<a id="parse-server-sample-application" class="anchor" href="#parse-server-sample-application" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Parse Server Sample Application</h3>
+
+<p>We have provided a basic <a href="https://github.com/ParsePlatform/parse-server-example">Node.js application</a> that uses the Parse Server module on Express and can be easily deployed to various infrastructure providers:</p>
+
+<ul>
+<li><a href="https://devcenter.heroku.com/articles/deploying-a-parse-server-to-heroku">Heroku and mLab</a></li>
+<li><a href="http://mobile.awsblog.com/post/TxCD57GZLM2JR/How-to-set-up-Parse-Server-on-AWS-using-AWS-Elastic-Beanstalk">AWS and Elastic Beanstalk</a></li>
+<li><a href="https://www.digitalocean.com/community/tutorials/how-to-run-parse-server-on-ubuntu-14-04">Digital Ocean</a></li>
+<li><a href="https://nodechef.com/blog/post/6/migrate-from-parse-to-nodechef%E2%80%99s-managed-parse-server">NodeChef</a></li>
+<li><a href="https://medium.com/@justinbeckwith/deploying-parse-server-to-google-app-engine-6bc0b7451d50">Google App Engine</a></li>
+<li><a href="https://azure.microsoft.com/en-us/blog/azure-welcomes-parse-developers/">Microsoft Azure</a></li>
+<li><a href="https://github.com/cf-platform-eng/pws-parse-server">Pivotal Web Services</a></li>
+<li><a href="http://blog.back4app.com/2016/03/01/quick-wizard-migration/">Back4app</a></li>
+</ul>
+
+<h3>
+<a id="parse-server--express" class="anchor" href="#parse-server--express" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Parse Server + Express</h3>
+
+<p>You can also create an instance of Parse Server, and mount it on a new or existing Express website:</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-k">var</span> express <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>express<span class="pl-pds">'</span></span>);
+<span class="pl-k">var</span> ParseServer <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>parse-server<span class="pl-pds">'</span></span>).<span class="pl-smi">ParseServer</span>;
+<span class="pl-k">var</span> app <span class="pl-k">=</span> <span class="pl-en">express</span>();
+
+<span class="pl-k">var</span> api <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">ParseServer</span>({
+  databaseURI<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>mongodb://localhost:27017/dev<span class="pl-pds">'</span></span>, <span class="pl-c">// Connection string for your MongoDB database</span>
+  cloud<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>/home/myApp/cloud/main.js<span class="pl-pds">'</span></span>, <span class="pl-c">// Absolute path to your Cloud Code</span>
+  appId<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>myAppId<span class="pl-pds">'</span></span>,
+  masterKey<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>myMasterKey<span class="pl-pds">'</span></span>, <span class="pl-c">// Keep this key secret!</span>
+  fileKey<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>optionalFileKey<span class="pl-pds">'</span></span>,
+  serverURL<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>http://localhost:1337/parse<span class="pl-pds">'</span></span> <span class="pl-c">// Don't forget to change to https if needed</span>
+});
+
+<span class="pl-c">// Serve the Parse API on the /parse URL prefix</span>
+<span class="pl-smi">app</span>.<span class="pl-en">use</span>(<span class="pl-s"><span class="pl-pds">'</span>/parse<span class="pl-pds">'</span></span>, api);
+
+<span class="pl-smi">app</span>.<span class="pl-en">listen</span>(<span class="pl-c1">1337</span>, <span class="pl-k">function</span>() {
+  <span class="pl-en">console</span>.<span class="pl-c1">log</span>(<span class="pl-s"><span class="pl-pds">'</span>parse-server-example running on port 1337.<span class="pl-pds">'</span></span>);
+});</pre></div>
+
+<p>For a full list of available options, run <code>parse-server --help</code>.</p>
+
+<h1>
+<a id="documentation" class="anchor" href="#documentation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Documentation</h1>
+
+<p>The full documentation for Parse Server is available in the <a href="https://github.com/ParsePlatform/parse-server/wiki">wiki</a>. The <a href="https://github.com/ParsePlatform/parse-server/wiki/Parse-Server-Guide">Parse Server guide</a> is a good place to get started. If you're interested in developing for Parse Server, the <a href="https://github.com/ParsePlatform/parse-server/wiki/Development-Guide">Development guide</a> will help you get set up.</p>
+
+<h2>
+<a id="migrating-an-existing-parse-app" class="anchor" href="#migrating-an-existing-parse-app" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Migrating an Existing Parse App</h2>
+
+<p>The hosted version of Parse will be fully retired on January 28th, 2017. If you are planning to migrate an app, you need to begin work as soon as possible. There are a few areas where Parse Server does not provide compatibility with the hosted version of Parse. Learn more in the <a href="https://parse.com/migration">Migration guide</a>.</p>
+
+<h2>
+<a id="configuration" class="anchor" href="#configuration" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Configuration</h2>
+
+<p>Parse Server can be configured using the following options. You may pass these as parameters when running a standalone <code>parse-server</code>, or by loading a configuration file in JSON format using <code>parse-server path/to/configuration.json</code>. If you're using Parse Server on Express, you may also pass these to the <code>ParseServer</code> object as options.</p>
+
+<p>For the full list of available options, run <code>parse-server --help</code>.</p>
+
+<h4>
+<a id="basic-options" class="anchor" href="#basic-options" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Basic options</h4>
+
+<ul>
+<li>
+<code>appId</code> <strong>(required)</strong> - The application id to host with this server instance. You can use any arbitrary string. For migrated apps, this should match your hosted Parse app.</li>
+<li>
+<code>masterKey</code> <strong>(required)</strong> - The master key to use for overriding ACL security.  You can use any arbitrary string. Keep it secret! For migrated apps, this should match your hosted Parse app.</li>
+<li>
+<code>databaseURI</code> <strong>(required)</strong> - The connection string for your database, i.e. <code>mongodb://user:pass@host.com/dbname</code>. Be sure to <a href="https://app.zencoder.com/docs/guides/getting-started/special-characters-in-usernames-and-passwords">URL encode your password</a> if your password has special characters.</li>
+<li>
+<code>port</code> - The default port is 1337, specify this parameter to use a different port.</li>
+<li>
+<code>serverURL</code> - URL to your Parse Server (don't forget to specify http:// or https://). This URL will be used when making requests to Parse Server from Cloud Code.</li>
+<li>
+<code>cloud</code> - The absolute path to your cloud code <code>main.js</code> file.</li>
+<li>
+<code>push</code> - Configuration options for APNS and GCM push. See the <a href="https://github.com/ParsePlatform/parse-server/wiki/Push">Push Notifications wiki entry</a>.</li>
+</ul>
+
+<h4>
+<a id="client-key-options" class="anchor" href="#client-key-options" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Client key options</h4>
+
+<p>The client keys used with Parse are no longer necessary with Parse Server. If you wish to still require them, perhaps to be able to refuse access to older clients, you can set the keys at initialization time. Setting any of these keys will require all requests to provide one of the configured keys.</p>
+
+<ul>
+<li><code>clientKey</code></li>
+<li><code>javascriptKey</code></li>
+<li><code>restAPIKey</code></li>
+<li><code>dotNetKey</code></li>
+</ul>
+
+<h4>
+<a id="advanced-options" class="anchor" href="#advanced-options" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Advanced options</h4>
+
+<ul>
+<li>
+<code>fileKey</code> - For migrated apps, this is necessary to provide access to files already hosted on Parse.</li>
+<li>
+<code>allowClientClassCreation</code> - Set to false to disable client class creation. Defaults to true.</li>
+<li>
+<code>enableAnonymousUsers</code> - Set to false to disable anonymous users. Defaults to true.</li>
+<li>
+<code>oauth</code> - Used to configure support for <a href="https://github.com/ParsePlatform/parse-server/wiki/OAuth">3rd party authentication</a>.</li>
+<li>
+<code>facebookAppIds</code> - An array of valid Facebook application IDs that users may authenticate with.</li>
+<li>
+<code>mountPath</code> - Mount path for the server. Defaults to <code>/parse</code>.</li>
+<li>
+<code>filesAdapter</code> - The default behavior (GridStore) can be changed by creating an adapter class (see <a href="https://github.com/ParsePlatform/parse-server/blob/master/src/Adapters/Files/FilesAdapter.js"><code>FilesAdapter.js</code></a>).</li>
+<li>
+<code>maxUploadSize</code> - Max file size for uploads. Defaults to 20 MB.</li>
+<li>
+<code>loggerAdapter</code> - The default behavior/transport (File) can be changed by creating an adapter class (see <a href="https://github.com/ParsePlatform/parse-server/blob/master/src/Adapters/Logger/LoggerAdapter.js"><code>LoggerAdapter.js</code></a>).</li>
+<li>
+<code>sessionLength</code> - The length of time in seconds that a session should be valid for. Defaults to 31536000 seconds (1 year).</li>
+<li>
+<code>revokeSessionOnPasswordReset</code> - When a user changes their password, either through the reset password email or while logged in, all sessions are revoked if this is true. Set to false if you don't want to revoke sessions.</li>
+</ul>
+
+<h5>
+<a id="logging" class="anchor" href="#logging" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Logging</h5>
+
+<p>Use the <code>PARSE_SERVER_LOGS_FOLDER</code> environment variable when starting <code>parse-server</code> to save your server logfiles to the specified folder.</p>
+
+<p>Usage:</p>
+
+<pre><code>PARSE_SERVER_LOGS_FOLDER='&lt;path-to-logs-folder&gt;' parse-server --appId APPLICATION_ID --masterKey MASTER_KEY
+</code></pre>
+
+<h5>
+<a id="email-verification-and-password-reset" class="anchor" href="#email-verification-and-password-reset" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Email verification and password reset</h5>
+
+<p>Verifying user email addresses and enabling password reset via email requries an email adapter. As part of the <code>parse-server</code> package we provide an adapter for sending email through Mailgun. To use it, sign up for Mailgun, and add this to your initialization code:</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-k">var</span> server <span class="pl-k">=</span> <span class="pl-en">ParseServer</span>({
+  <span class="pl-k">...</span>otherOptions,
+  <span class="pl-c">// Enable email verification</span>
+  verifyUserEmails<span class="pl-k">:</span> <span class="pl-c1">true</span>,
+
+  <span class="pl-c">// set preventLoginWithUnverifiedEmail to false to allow user to login without verifying their email</span>
+  <span class="pl-c">// set preventLoginWithUnverifiedEmail to true to prevent user from login if their email is not verified</span>
+  preventLoginWithUnverifiedEmail<span class="pl-k">:</span> <span class="pl-c1">false</span>, <span class="pl-c">// defaults to false</span>
+
+  <span class="pl-c">// The public URL of your app.</span>
+  <span class="pl-c">// This will appear in the link that is used to verify email addresses and reset passwords.</span>
+  <span class="pl-c">// Set the mount path as it is in serverURL</span>
+  publicServerURL<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>https://example.com/parse<span class="pl-pds">'</span></span>,
+  <span class="pl-c">// Your apps name. This will appear in the subject and body of the emails that are sent.</span>
+  appName<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Parse App<span class="pl-pds">'</span></span>,
+  <span class="pl-c">// The email adapter</span>
+  emailAdapter<span class="pl-k">:</span> {
+    module<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>parse-server-simple-mailgun-adapter<span class="pl-pds">'</span></span>,
+    options<span class="pl-k">:</span> {
+      <span class="pl-c">// The address that your emails come from</span>
+      fromAddress<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>parse@example.com<span class="pl-pds">'</span></span>,
+      <span class="pl-c">// Your domain from mailgun.com</span>
+      domain<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>example.com<span class="pl-pds">'</span></span>,
+      <span class="pl-c">// Your API key from mailgun.com</span>
+      apiKey<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>key-mykey<span class="pl-pds">'</span></span>,
+    }
+  }
+});</pre></div>
+
+<p>You can also use other email adapters contributed by the community such as:</p>
+
+<ul>
+<li><a href="https://www.npmjs.com/package/parse-server-postmark-adapter">parse-server-postmark-adapter</a></li>
+<li><a href="https://www.npmjs.com/package/parse-server-sendgrid-adapter">parse-server-sendgrid-adapter</a></li>
+<li><a href="https://www.npmjs.com/package/parse-server-mandrill-adapter">parse-server-mandrill-adapter</a></li>
+</ul>
+
+<h3>
+<a id="using-environment-variables-to-configure-parse-server" class="anchor" href="#using-environment-variables-to-configure-parse-server" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Using environment variables to configure Parse Server</h3>
+
+<p>You may configure the Parse Server using environment variables:</p>
+
+<div class="highlight highlight-source-shell"><pre>PORT
+PARSE_SERVER_APPLICATION_ID
+PARSE_SERVER_MASTER_KEY
+PARSE_SERVER_DATABASE_URI
+PARSE_SERVER_URL
+PARSE_SERVER_CLOUD_CODE_MAIN</pre></div>
+
+<p>The default port is 1337, to use a different port set the PORT environment variable:</p>
+
+<div class="highlight highlight-source-shell"><pre>$ PORT=8080 parse-server --appId APPLICATION_ID --masterKey MASTER_KEY</pre></div>
+
+<p>For the full list of configurable environment variables, run <code>parse-server --help</code>.</p>
+
+<h3>
+<a id="available-adapters" class="anchor" href="#available-adapters" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Available Adapters</h3>
+
+<p><a href="https://github.com/parse-server-modules">Parse Server Modules (Adapters)</a></p>
+
+<h3>
+<a id="configuring-file-adapters" class="anchor" href="#configuring-file-adapters" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Configuring File Adapters</h3>
+
+<p>Parse Server allows developers to choose from several options when hosting files:</p>
+
+<ul>
+<li>
+<code>GridStoreAdapter</code>, which is backed by MongoDB;</li>
+<li>
+<code>S3Adapter</code>, which is backed by <a href="https://aws.amazon.com/s3/">Amazon S3</a>; or</li>
+<li>
+<code>GCSAdapter</code>, which is backed by <a href="https://cloud.google.com/storage/">Google Cloud Storage</a>
+</li>
+</ul>
+
+<p><code>GridStoreAdapter</code> is used by default and requires no setup, but if you're interested in using S3 or Google Cloud Storage, additional configuration information is available in the <a href="https://github.com/ParsePlatform/parse-server/wiki/Configuring-File-Adapters">Parse Server wiki</a>.</p>
+
+<h1>
+<a id="support" class="anchor" href="#support" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Support</h1>
+
+<p>For implementation related questions or technical support, please refer to the <a href="http://stackoverflow.com/questions/tagged/parse.com">Stack Overflow</a> and <a href="https://serverfault.com/tags/parse">Server Fault</a> communities.</p>
+
+<p>If you believe you've found an issue with Parse Server, make sure these boxes are checked before <a href="https://github.com/ParsePlatform/parse-server/issues">reporting an issue</a>:</p>
+
+<ul>
+<li><p>[ ] You've met the <a href="https://github.com/ParsePlatform/parse-server/wiki/Parse-Server-Guide#prerequisites">prerequisites</a>.</p></li>
+<li><p>[ ] You're running the <a href="https://github.com/ParsePlatform/parse-server/releases">latest version</a> of Parse Server.</p></li>
+<li><p>[ ] You've searched through <a href="https://github.com/ParsePlatform/parse-server/issues?utf8=%E2%9C%93&amp;q=">existing issues</a>. Chances are that your issue has been reported or resolved before.</p></li>
+</ul>
+
+<h1>
+<a id="contributing" class="anchor" href="#contributing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Contributing</h1>
+
+<p>We really want Parse to be yours, to see it grow and thrive in the open source community. Please see the <a href="CONTRIBUTING.md">Contributing to Parse Server guide</a>.</p>
+
+
+
+
+
+
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		
+  </body>
+</html>
